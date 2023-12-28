@@ -1,0 +1,26 @@
+{
+	"name": "Image Super-Resolution Batch",
+	"build": {
+		"dockerfile": "Dockerfile",
+		"context": ".."
+	},
+	"features": {
+		"ghcr.io/devcontainers/features/go:1": {
+			"version": "1.21.5"
+		},
+		"ghcr.io/devcontainers/features/node:1": {
+			"version": "20.10.0"
+		}
+	},
+	"customizations": {
+		"vscode": {
+			"settings": {
+				"python.defaultInterpreterPath": "isr/.venv/bin/python"
+			},
+			"extensions": [
+				"ms-python.python"
+			]
+		}
+	},
+	"postCreateCommand": "cd isr && rye sync"
+}
