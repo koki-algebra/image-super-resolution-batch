@@ -15,8 +15,6 @@ ENV ROOT=/go/src
 
 WORKDIR ${ROOT}
 
-RUN apk add --no-cache tzdata
-
 COPY --from=builder ${ROOT}/main .
 
 CMD [ "/go/src/main" ]
