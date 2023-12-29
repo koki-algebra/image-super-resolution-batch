@@ -62,7 +62,7 @@ services:
       timeout: 5s
       retries: 3
 
-  ## Message Queue
+  # Message Queue
   mq:
     container_name: mq
     image: rabbitmq:3.12.11-management
@@ -78,3 +78,14 @@ services:
       interval: 5s
       timeout: 5s
       retries: 3
+
+  # Swagger UI
+  swagger-ui:
+    image: swaggerapi/swagger-ui
+    container_name: "swagger-ui"
+    ports:
+      - "8000:8080"
+    volumes:
+      - ./gateway/api/http/openapi.yml:/openapi.yml
+    environment:
+      SWAGGER_JSON: /openapi.yml
