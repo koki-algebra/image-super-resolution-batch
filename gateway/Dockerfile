@@ -9,7 +9,7 @@ COPY . .
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o main ./cmd
 
 
-FROM alpine:3.18.3 AS deploy
+FROM alpine:3.19.0 AS deploy
 
 ENV ROOT=/go/src
 
