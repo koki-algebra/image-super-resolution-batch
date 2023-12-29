@@ -3,10 +3,13 @@
 
 .PHONY: build
 build: ## build application
-	@docker compose build --no-cache
+	@docker compose build
 
 run: ## start application
 	@docker compose up -d
+
+generate: ## generate code
+	@cd gateway/api/http && oapi-codegen -config config.yml openapi.yml
 
 fmt: ## format code
 	@cd gateway && go fmt ./...

@@ -1,0 +1,44 @@
+openapi: 3.1.0
+info:
+  version: 1.0.0
+  title: Image Super-Resolution API
+  description: >-
+    Image Super-Resolution API
+servers:
+  - url: http://localhost:8080
+tags:
+  - name: health
+paths:
+  /health:
+    get:
+      description: >
+        Health check
+      operationId: healthCheck
+      tags:
+        - health
+      responses:
+        200:
+          description: OK response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: OK
+
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+components:
+  schemas:
+    Error:
+      type: "object"
+      properties:
+        message:
+          type: "string"
