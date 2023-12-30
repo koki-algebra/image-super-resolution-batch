@@ -15,18 +15,38 @@ import (
 
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/go-chi/chi/v5"
+	openapi_types "github.com/oapi-codegen/runtime/types"
 )
 
-// Error defines model for Error.
-type Error struct {
+// History defines model for History.
+type History struct {
+	HistoryID *int    `json:"historyID,omitempty"`
+	IsrJobID  *string `json:"isrJobID,omitempty"`
+	Status    *string `json:"status,omitempty"`
+	Timestamp *string `json:"timestamp,omitempty"`
+}
+
+// Message defines model for Message.
+type Message struct {
 	Message *string `json:"message,omitempty"`
 }
+
+// UploadImageMultipartBody defines parameters for UploadImage.
+type UploadImageMultipartBody struct {
+	File *openapi_types.File `json:"file,omitempty"`
+}
+
+// UploadImageMultipartRequestBody defines body for UploadImage for multipart/form-data ContentType.
+type UploadImageMultipartRequestBody UploadImageMultipartBody
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
 
 	// (GET /health)
 	HealthCheck(w http.ResponseWriter, r *http.Request)
+
+	// (POST /images/upload)
+	UploadImage(w http.ResponseWriter, r *http.Request)
 }
 
 // Unimplemented server implementation that returns http.StatusNotImplemented for each endpoint.
@@ -35,6 +55,11 @@ type Unimplemented struct{}
 
 // (GET /health)
 func (_ Unimplemented) HealthCheck(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// (POST /images/upload)
+func (_ Unimplemented) UploadImage(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -53,6 +78,21 @@ func (siw *ServerInterfaceWrapper) HealthCheck(w http.ResponseWriter, r *http.Re
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.HealthCheck(w, r)
+	}))
+
+	for i := len(siw.HandlerMiddlewares) - 1; i >= 0; i-- {
+		handler = siw.HandlerMiddlewares[i](handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
+
+// UploadImage operation middleware
+func (siw *ServerInterfaceWrapper) UploadImage(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.UploadImage(w, r)
 	}))
 
 	for i := len(siw.HandlerMiddlewares) - 1; i >= 0; i-- {
@@ -178,6 +218,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/health", wrapper.HealthCheck)
 	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/images/upload", wrapper.UploadImage)
+	})
 
 	return r
 }
@@ -185,12 +228,15 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"H4sIAAAAAAAC/5RSy27bMBD8FWHaoyrJ7cXgrSgK1PDBRXt0fGDotUSHIglyFTgQ9O8BadlBkCCPkwY7",
-	"u6PZ4Y5QrvfOkuUIMSKqjnqZ4e8QXEjAB+cpsKZc7ilG2VKC/OAJApGDti2mqbxU3O2RFGNKJW0PLjXv",
-	"KaqgPWtnIbDqZUvF/8FT+PaPojNDIoqff1cowZoNvdd0TyGetRZVUzWYSjhPVnoNgR/VompQwkvusuu6",
-	"I2m4S7AlfunnT6YL1ZG6u7HIWkEmcrW/0r8SixKBonc2nvP43jTpo5xlsllZem+0ysP1MSb5S65vpkkn",
-	"2fu892aN8mPhPl9isy4u1pDJgxwMf8rd10AHCHypn86inm+iPh/EK/8dLJ08KaZ9QXNPCZZthNhiDn6X",
-	"5yKF9G4Q2xFDMBDomL2oa+OUNJ2LLJbNssG0uwqMsLJPe89C0256DAAA//9s5VB9tQIAAA==",
+	"H4sIAAAAAAAC/9RUzW7bPBB8FWK/7+hYSnsJeOvPIW5QpGjRU+rDmlpLTCmSJVdFDEPvXiz9k8Y2DBc9",
+	"9WSaMxzu7gy1BhP6GDx5zqDXkE1HPZblrc0c0kqWMYVIiS0VoNsAs/fyh56wj45AX0+AV5FAg/VMLSUY",
+	"J2Bz+hAWB0wYBtvAnp45Wd8KOzPykF9yI/lG4BN0tj1lxj7KiQN03PPD4pEMC/8j5YwtHTfUPwO/Fenp",
+	"KZJhahSlFNJxBcd3yJb1yyBKDWWTbGQbPGiY9diS+jJESlefKQc3CKDefJqJruVy5VnST0p5o3U9rae1",
+	"NBQieYwWNLyeXk9rmEBE7kpLVUfouJNlS3xcz22BlenIfP/moWglFHDW7OF3gsIEEuUYfN4M61Vdy48J",
+	"nskXZYzRWVMOV49Z5Hc5unDU93eXDvdlE/d3alcaFHCJg+M/qu7/REvQ8F/1/Ayq7Ruodnk5cfNROEq9",
+	"2GbQD7Ad/Vz2Kiue5mqILmBT5hHyCT++FlyhV+WAQt8oh4M3nUK1QDad4qCsN4kwk+KOpPVtQk4YuNEr",
+	"gSoG/hgo89vQrA6m0w+ObcTE1TKk/qpBxnP2La0r3gkZGTQsrMe0usy+8S+TdM6r3cfq30nJJhiSEvny",
+	"UZL3DfphDUNyoKFjjrqqXDDoupBZ39Q3NYzzvcAaPPYy4G3cxsl+Zys9zsdfAQAA//+tS16T3wUAAA==",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

@@ -6,11 +6,15 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/httplog"
+	"github.com/koki-algebra/image-super-resolution-batch/gateway/internal/config"
 	"github.com/koki-algebra/image-super-resolution-batch/gateway/internal/infra/http/controller"
 	"github.com/koki-algebra/image-super-resolution-batch/gateway/internal/infra/http/oapi"
+	"github.com/koki-algebra/image-super-resolution-batch/gateway/internal/infra/repository"
+	"github.com/koki-algebra/image-super-resolution-batch/gateway/internal/infra/service"
+	"github.com/koki-algebra/image-super-resolution-batch/gateway/internal/usecase"
 )
 
-func newRouter(sqlDB *sql.DB) (http.Handler, error) {
+func newRouter(sqlDB *sql.DB, cfg *config.Config) (http.Handler, error) {
 	r := chi.NewRouter()
 
 	swagger, err := oapi.GetSwagger()
@@ -25,7 +29,17 @@ func newRouter(sqlDB *sql.DB) (http.Handler, error) {
 	})
 	r.Use(httplog.RequestLogger(logger))
 
-	ctrl := controller.New()
+	// services
+	publisher := service.NewPublisher()
+	storage := service.NewStorage()
+
+	// repositories
+	historyRepo := repository.NewHistory(sqlDB)
+
+	// usecases
+	img := usecase.NewImage(cfg, publisher, storage, historyRepo)
+
+	ctrl := controller.New(img)
 	oapi.HandlerFromMux(ctrl, r)
 
 	return r, nil

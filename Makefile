@@ -1,6 +1,10 @@
 .PHONY: help
 .DEFAULT_GOAL := help
 
+# environment variables
+DATABASE := app
+USER := postgres
+
 .PHONY: build
 build: ## build application
 	@docker compose build
@@ -19,6 +23,9 @@ clear: ## clear application
 
 logs: ## show API server logs
 	@docker compose logs -f gateway
+
+psql: ## login to PostgreSQL
+	@psql --host localhost --username $(USER) --dbname $(DATABASE) --password
 
 help: ## show help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
