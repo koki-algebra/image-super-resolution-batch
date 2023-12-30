@@ -38,7 +38,7 @@ func (s *Server) Run(ctx context.Context) error {
 	defer sqlDB.Close()
 
 	// router
-	router, err := newRouter(sqlDB)
+	router, err := newRouter(sqlDB, s.cfg)
 	if err != nil {
 		return err
 	}
