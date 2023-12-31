@@ -30,7 +30,10 @@ func newRouter(sqlDB *sql.DB, cfg *config.Config) (http.Handler, error) {
 	r.Use(httplog.RequestLogger(logger))
 
 	// services
-	publisher := service.NewPublisher()
+	publisher, err := service.NewPublisher(cfg)
+	if err != nil {
+		return nil, err
+	}
 	storage := service.NewStorage()
 
 	// repositories

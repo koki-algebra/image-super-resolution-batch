@@ -14,6 +14,12 @@ type Config struct {
 	// Object storage
 	UploadImagePrefix          string `env:"UPLOAD_IMAGE_PREFIX" envDefault:"upload_images"`
 	SuperResolutionImagePrefix string `env:"SUPER_RESOLUTION_IMAGE_PREFIX" envDefault:"super_resolution_images"`
+	// Message queue
+	MQHost      string `env:"MQ_HOST" envDefault:"mq"`
+	MQPort      int    `env:"MQ_PORT" envDefault:"5672"`
+	MQUser      string `env:"MQ_USER" envDefault:"admin"`
+	MQPassword  string `env:"MQ_PASSWORD" envDefault:"password"`
+	MQQueueName string `env:"MQ_QUEUE_NAME" envDefault:"task_queue"`
 }
 
 func New() (*Config, error) {

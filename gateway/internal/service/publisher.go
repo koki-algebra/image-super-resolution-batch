@@ -3,5 +3,5 @@ package service
 import "context"
 
 type Publisher interface {
-	PushObject(ctx context.Context, key string) error
+	Publish(ctx context.Context, contentType string, body []byte) error
 }
