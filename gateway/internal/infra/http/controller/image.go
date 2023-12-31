@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"log/slog"
 	"net/http"
 	"path/filepath"
 
@@ -32,6 +33,7 @@ func (ctrl *controllerImpl) UploadImage(w http.ResponseWriter, r *http.Request) 
 
 	history, err := ctrl.image.Publish(ctx, file, ext)
 	if err != nil {
+		slog.Error("failed to publish", "error", err)
 		renderMessage(w, r, http.StatusInternalServerError, "internal error")
 		return
 	}

@@ -6,6 +6,6 @@ type History struct {
 	HistoryID int
 	Timestamp time.Time
 	Status    JobStatus
-	IsrJobID  int
+	IsrJobID  string
 	IsrJob    IsrJob
 }

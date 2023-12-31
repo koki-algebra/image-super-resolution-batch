@@ -35,7 +35,8 @@ type imageImpl struct {
 func (img *imageImpl) Publish(ctx context.Context, r io.Reader, extension string) (*entity.History, error) {
 	jobID := uuid.NewString()
 	history := entity.History{
-		Status: entity.PENDING,
+		Status:   entity.PENDING,
+		IsrJobID: jobID,
 		IsrJob: entity.IsrJob{
 			IsrJobID:                jobID,
 			UploadImageKey:          fmt.Sprintf("%s/%s%s", img.cfg.UploadImagePrefix, jobID, extension),

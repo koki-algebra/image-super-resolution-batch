@@ -12,7 +12,7 @@ import (
 
 func NewHistory(sqlDB *sql.DB) repository.History {
 	return &historyImpl{
-		db: bun.NewDB(sqlDB, pgdialect.New()),
+		db: bun.NewDB(sqlDB, pgdialect.New(), bun.WithDiscardUnknownColumns()),
 	}
 }
 
@@ -21,5 +21,23 @@ type historyImpl struct {
 }
 
 func (h *historyImpl) Create(ctx context.Context, history *entity.History) error {
-	return nil
+	tx, err := h.db.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	if _, err := tx.NewInsert().Model(&history.IsrJob).Exec(ctx); err != nil {
+		return err
+	}
+
+	if _, err := tx.NewInsert().
+		Model(history).
+		ExcludeColumn("history_id", "timestamp", "isr_job").
+		Returning("history_id, timestamp").
+		Exec(ctx); err != nil {
+		return err
+	}
+
+	return tx.Commit()
 }
