@@ -6,5 +6,5 @@ import (
 )
 
 type Storage interface {
-	PutObject(ctx context.Context, key string, r io.Reader) error
+	PutObject(ctx context.Context, bucket string, key string, data io.Reader) error
 }

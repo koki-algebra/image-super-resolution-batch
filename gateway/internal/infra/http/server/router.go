@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"net/http"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/httplog"
 	"github.com/koki-algebra/image-super-resolution-batch/gateway/internal/config"
@@ -14,7 +15,7 @@ import (
 	"github.com/koki-algebra/image-super-resolution-batch/gateway/internal/usecase"
 )
 
-func newRouter(sqlDB *sql.DB, cfg *config.Config) (http.Handler, error) {
+func newRouter(cfg *config.Config, sqlDB *sql.DB, awsCfg aws.Config) (http.Handler, error) {
 	r := chi.NewRouter()
 
 	swagger, err := oapi.GetSwagger()
@@ -34,7 +35,7 @@ func newRouter(sqlDB *sql.DB, cfg *config.Config) (http.Handler, error) {
 	if err != nil {
 		return nil, err
 	}
-	storage := service.NewStorage()
+	storage := service.NewStorage(awsCfg)
 
 	// repositories
 	historyRepo := repository.NewHistory(sqlDB)

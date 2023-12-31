@@ -53,7 +53,7 @@ func (img *imageImpl) Publish(ctx context.Context, r io.Reader, extension string
 	}
 
 	// Upload the uploaded image to object storage
-	if err := img.storage.PutObject(ctx, imageKey, r); err != nil {
+	if err := img.storage.PutObject(ctx, img.cfg.Bucket, imageKey, r); err != nil {
 		return nil, err
 	}
 

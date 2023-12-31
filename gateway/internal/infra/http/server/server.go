@@ -13,6 +13,7 @@ import (
 
 	"github.com/koki-algebra/image-super-resolution-batch/gateway/internal/config"
 	"github.com/koki-algebra/image-super-resolution-batch/gateway/internal/infra/database"
+	"github.com/koki-algebra/image-super-resolution-batch/gateway/internal/infra/service"
 	"github.com/sourcegraph/conc/pool"
 )
 
@@ -37,8 +38,14 @@ func (s *Server) Run(ctx context.Context) error {
 	}
 	defer sqlDB.Close()
 
+	// Initialize AWS config
+	awsCfg, err := service.InitAWSConfig(ctx, s.cfg)
+	if err != nil {
+		return err
+	}
+
 	// router
-	router, err := newRouter(sqlDB, s.cfg)
+	router, err := newRouter(s.cfg, sqlDB, awsCfg)
 	if err != nil {
 		return err
 	}
