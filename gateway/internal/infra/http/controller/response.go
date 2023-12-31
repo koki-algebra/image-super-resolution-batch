@@ -8,6 +8,6 @@ import (
 )
 
 func renderMessage(w http.ResponseWriter, r *http.Request, code int, msg string) {
-	w.WriteHeader(code)
+	render.Status(r, code)
 	render.JSON(w, r, oapi.Message{Message: &msg})
 }
