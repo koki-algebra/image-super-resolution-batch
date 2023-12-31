@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"runtime"
 	"time"
 
 	"github.com/koki-algebra/image-super-resolution-batch/gateway/internal/config"
@@ -20,8 +21,10 @@ func Open(ctx context.Context, cfg *config.Config) (*sql.DB, error) {
 
 	db.SetConnMaxIdleTime(time.Minute * 15)
 	db.SetConnMaxLifetime(time.Hour * 12)
-	db.SetMaxIdleConns(15)
-	db.SetMaxOpenConns(20)
+
+	maxOpenConns := 4 * runtime.GOMAXPROCS(0)
+	db.SetMaxIdleConns(maxOpenConns)
+	db.SetMaxOpenConns(maxOpenConns)
 
 	// verify connection
 	ctx, cancel := context.WithTimeout(ctx, time.Second*2)
