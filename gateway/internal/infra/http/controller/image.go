@@ -38,7 +38,7 @@ func (ctrl *controllerImpl) UploadImage(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
+	render.Status(r, http.StatusOK)
 	render.JSON(w, r, convertHistory(history))
 }
 
