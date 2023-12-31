@@ -41,3 +41,35 @@ func (h *historyImpl) Create(ctx context.Context, history *entity.History) error
 
 	return tx.Commit()
 }
+
+func (h *historyImpl) List(ctx context.Context, params repository.HistoryListParams) ([]*entity.History, error) {
+	tx, err := h.db.BeginTx(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback()
+
+	var (
+		limit  = 50
+		offset = 0
+	)
+
+	if params.Limit != nil && *params.Limit < limit {
+		limit = *params.Limit
+	}
+	if params.Offset != nil && *params.Offset > offset {
+		offset = *params.Offset
+	}
+
+	var histories []*entity.History
+	if err := tx.NewSelect().
+		Model(&histories).
+		Relation("IsrJob").
+		Limit(limit).
+		Offset(offset).
+		Scan(ctx); err != nil {
+		return nil, err
+	}
+
+	return histories, tx.Commit()
+}

@@ -6,8 +6,6 @@ import (
 	"path/filepath"
 
 	"github.com/go-chi/render"
-	"github.com/koki-algebra/image-super-resolution-batch/gateway/internal/entity"
-	"github.com/koki-algebra/image-super-resolution-batch/gateway/internal/infra/http/oapi"
 )
 
 const (
@@ -40,20 +38,4 @@ func (ctrl *controllerImpl) UploadImage(w http.ResponseWriter, r *http.Request) 
 
 	render.Status(r, http.StatusOK)
 	render.JSON(w, r, convertHistory(history))
-}
-
-func convertHistory(history *entity.History) *oapi.History {
-	if history == nil {
-		return nil
-	}
-
-	status := history.Status.String()
-	timestamp := history.Timestamp.String()
-
-	return &oapi.History{
-		HistoryID: &history.HistoryID,
-		IsrJobID:  &history.IsrJob.IsrJobID,
-		Status:    &status,
-		Timestamp: &timestamp,
-	}
 }

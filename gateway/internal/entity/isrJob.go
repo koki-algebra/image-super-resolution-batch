@@ -26,7 +26,7 @@ func (s JobStatus) String() string {
 }
 
 type IsrJob struct {
-	IsrJobID                string
+	IsrJobID                string `bun:",pk"`
 	UploadImageKey          string
 	SuperResolutionImageKey string
 }

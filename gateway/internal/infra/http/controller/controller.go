@@ -5,12 +5,14 @@ import (
 	"github.com/koki-algebra/image-super-resolution-batch/gateway/internal/usecase"
 )
 
-func New(img usecase.Image) oapi.ServerInterface {
+func New(img usecase.Image, history usecase.History) oapi.ServerInterface {
 	return &controllerImpl{
-		image: img,
+		image:   img,
+		history: history,
 	}
 }
 
 type controllerImpl struct {
-	image usecase.Image
+	image   usecase.Image
+	history usecase.History
 }
