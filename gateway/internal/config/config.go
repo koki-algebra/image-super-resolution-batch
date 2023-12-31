@@ -12,6 +12,8 @@ type Config struct {
 	// Server
 	ServerPort int `env:"SERVER_PORT" envDefault:"80"`
 	// Object storage
+	S3Endpoint                 string `env:"S3_ENDPOINT"`
+	Bucket                     string `env:"BUCKET" envDefault:"image-super-resolution-batch"`
 	UploadImagePrefix          string `env:"UPLOAD_IMAGE_PREFIX" envDefault:"upload_images"`
 	SuperResolutionImagePrefix string `env:"SUPER_RESOLUTION_IMAGE_PREFIX" envDefault:"super_resolution_images"`
 	// Message queue
