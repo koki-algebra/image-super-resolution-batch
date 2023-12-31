@@ -15,20 +15,36 @@ import (
 
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/go-chi/chi/v5"
+	"github.com/oapi-codegen/runtime"
 	openapi_types "github.com/oapi-codegen/runtime/types"
 )
 
 // History defines model for History.
 type History struct {
-	HistoryID *int    `json:"historyID,omitempty"`
-	IsrJobID  *string `json:"isrJobID,omitempty"`
-	Status    *string `json:"status,omitempty"`
-	Timestamp *string `json:"timestamp,omitempty"`
+	HistoryID *int                `json:"historyID,omitempty"`
+	IsrJobID  *openapi_types.UUID `json:"isrJobID,omitempty"`
+	Status    *string             `json:"status,omitempty"`
+	Timestamp *string             `json:"timestamp,omitempty"`
+}
+
+// ListHistoriesResponse defines model for ListHistoriesResponse.
+type ListHistoriesResponse struct {
+	HasNext   *bool      `json:"hasNext,omitempty"`
+	Histories *[]History `json:"histories,omitempty"`
 }
 
 // Message defines model for Message.
 type Message struct {
 	Message *string `json:"message,omitempty"`
+}
+
+// ListHistoriesParams defines parameters for ListHistories.
+type ListHistoriesParams struct {
+	// Limit Maximum number to retrieve at once
+	Limit *int `form:"limit,omitempty" json:"limit,omitempty"`
+
+	// Offset Offset when retrieving
+	Offset *int `form:"offset,omitempty" json:"offset,omitempty"`
 }
 
 // UploadImageMultipartBody defines parameters for UploadImage.
@@ -45,6 +61,9 @@ type ServerInterface interface {
 	// (GET /health)
 	HealthCheck(w http.ResponseWriter, r *http.Request)
 
+	// (GET /histories)
+	ListHistories(w http.ResponseWriter, r *http.Request, params ListHistoriesParams)
+
 	// (POST /images/upload)
 	UploadImage(w http.ResponseWriter, r *http.Request)
 }
@@ -55,6 +74,11 @@ type Unimplemented struct{}
 
 // (GET /health)
 func (_ Unimplemented) HealthCheck(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// (GET /histories)
+func (_ Unimplemented) ListHistories(w http.ResponseWriter, r *http.Request, params ListHistoriesParams) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -78,6 +102,42 @@ func (siw *ServerInterfaceWrapper) HealthCheck(w http.ResponseWriter, r *http.Re
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.HealthCheck(w, r)
+	}))
+
+	for i := len(siw.HandlerMiddlewares) - 1; i >= 0; i-- {
+		handler = siw.HandlerMiddlewares[i](handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
+
+// ListHistories operation middleware
+func (siw *ServerInterfaceWrapper) ListHistories(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params ListHistoriesParams
+
+	// ------------- Optional query parameter "limit" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "limit", r.URL.Query(), &params.Limit)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "limit", Err: err})
+		return
+	}
+
+	// ------------- Optional query parameter "offset" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "offset", r.URL.Query(), &params.Offset)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "offset", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ListHistories(w, r, params)
 	}))
 
 	for i := len(siw.HandlerMiddlewares) - 1; i >= 0; i-- {
@@ -219,6 +279,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		r.Get(options.BaseURL+"/health", wrapper.HealthCheck)
 	})
 	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/histories", wrapper.ListHistories)
+	})
+	r.Group(func(r chi.Router) {
 		r.Post(options.BaseURL+"/images/upload", wrapper.UploadImage)
 	})
 
@@ -228,15 +291,19 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"H4sIAAAAAAAC/9RUzW7bPBB8FWK/7+hYSnsJeOvPIW5QpGjRU+rDmlpLTCmSJVdFDEPvXiz9k8Y2DBc9",
-	"9WSaMxzu7gy1BhP6GDx5zqDXkE1HPZblrc0c0kqWMYVIiS0VoNsAs/fyh56wj45AX0+AV5FAg/VMLSUY",
-	"J2Bz+hAWB0wYBtvAnp45Wd8KOzPykF9yI/lG4BN0tj1lxj7KiQN03PPD4pEMC/8j5YwtHTfUPwO/Fenp",
-	"KZJhahSlFNJxBcd3yJb1yyBKDWWTbGQbPGiY9diS+jJESlefKQc3CKDefJqJruVy5VnST0p5o3U9rae1",
-	"NBQieYwWNLyeXk9rmEBE7kpLVUfouJNlS3xcz22BlenIfP/moWglFHDW7OF3gsIEEuUYfN4M61Vdy48J",
-	"nskXZYzRWVMOV49Z5Hc5unDU93eXDvdlE/d3alcaFHCJg+M/qu7/REvQ8F/1/Ayq7Ruodnk5cfNROEq9",
-	"2GbQD7Ad/Vz2Kiue5mqILmBT5hHyCT++FlyhV+WAQt8oh4M3nUK1QDad4qCsN4kwk+KOpPVtQk4YuNEr",
-	"gSoG/hgo89vQrA6m0w+ObcTE1TKk/qpBxnP2La0r3gkZGTQsrMe0usy+8S+TdM6r3cfq30nJJhiSEvny",
-	"UZL3DfphDUNyoKFjjrqqXDDoupBZ39Q3NYzzvcAaPPYy4G3cxsl+Zys9zsdfAQAA//+tS16T3wUAAA==",
+	"H4sIAAAAAAAC/9RWTY/bNhD9K8S0t9oWZWcTR7c2BZptmm6RNqd2D2NqZDEVP0KOtmss/N8L0rIdewVj",
+	"iyKHPZniI98MZx4f/QDKGe8sWY5QPUBULRnMw7c6sgubNPTBeQqsKQPtDrj+MX3QPRrfEVTlBHjjCSrQ",
+	"lmlNAbYT0DH87FZnK4HKV3JVXslpubhqpi/oSk5fv1TL6bwsF7Vq6MVqUcMEGhcMMlTQ9zp9D/SRg7br",
+	"xB4ZuY+n3J5sneCR5awNRUbjT3fM5XwxLefTRSnKV9ViWc1fzhbydbkU30kppfj4x5vHbNvDjFt9IsWJ",
+	"/xcdeVc0TfEDRe9spJHyYfyV7jkNB4qVcx2hTRztfn+CNZPJg28DNVDBN8WxWcXQqWLfpmNGGAJuxlN8",
+	"TzHieiQpcwSOlekt3XtSTLWgEFx4ShnSlLaNS0w1RRW0Z+0sVHBtcE3i995TmH6g6Lo+AeL7364Tr+Yc",
+	"8uKiOwpxx1XO5EymAzlPFr2GChazciZhAh65zUcqWsKO2zRcEz/O522GhWpJ/f2XhcwVMIHX9QF+k1CY",
+	"QBjamZnnUqYf5SyTzczofadV3lx8iol+f5WeWOqbd08t7ukhbt6JfWqQwQb7jv9TdpfEtdfLSORH4sj5",
+	"4jpC9ScMpb9Nc8WJpkdb8ROxOKwa6cXJzco9DmiIKaRg52Tv8V6b3gjbmxUFwU4E4qDpjgSycFYRJIlC",
+	"BZ97ChuYgEWTqtxpoxkmX5Tm3NC2k/NgN00TicU/Ldl9mJ37jAVwefHlCLf/U2uXujluUM9IVQcJ7ISl",
+	"k1nEovedwzpfNBdH1PUx4wKtyBsE2lp02FvVChQrZNUmkWirAmEkwS2l0w/WM6LGHV92quwMn3uK/IOr",
+	"N2cFMn3H2mPgIr1k0xoZL/lCo7tsCodnb6UtZvk8wRe2X1E2hxfm2QhlJ4ykkvQvgcLd3in60EEFLbOv",
+	"iqJzCrvWRa6WcikhXb2B4GF/YwcfS/d+mBmov5g5qnJ7u/03AAD//4vdvwdQCQAA",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

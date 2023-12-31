@@ -42,8 +42,9 @@ func newRouter(cfg *config.Config, sqlDB *sql.DB, awsCfg aws.Config) (http.Handl
 
 	// usecases
 	img := usecase.NewImage(cfg, publisher, storage, historyRepo)
+	history := usecase.NewHistory(cfg, historyRepo)
 
-	ctrl := controller.New(img)
+	ctrl := controller.New(img, history)
 	oapi.HandlerFromMux(ctrl, r)
 
 	return r, nil

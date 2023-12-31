@@ -9,6 +9,7 @@ servers:
 tags:
   - name: health
   - name: images
+  - name: histories
 paths:
   /health:
     get:
@@ -65,6 +66,38 @@ paths:
               schema:
                 $ref: "#/components/schemas/Message"
 
+  /histories:
+    get:
+      description: >
+        Get histories
+      operationId: listHistories
+      tags:
+        - histories
+      parameters:
+        - name: limit
+          in: query
+          description: Maximum number to retrieve at once
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          description: Offset when retrieving
+          schema:
+            type: integer
+      responses:
+        200:
+          description: OK response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListHistoriesResponse"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+
 components:
   schemas:
     Message:
@@ -82,9 +115,21 @@ components:
           example: 1
         timestamp:
           type: string
+          example: 2023-12-31 17:38:26.30918 +0000 UTC
         isrJobID:
           type: string
-          example: uuid
+          format: uuid
+          example: e170b150-135f-4e50-96c8-2113dcfe4b3d
         status:
           type: string
           example: pending
+
+    ListHistoriesResponse:
+      type: object
+      properties:
+        histories:
+          type: array
+          items:
+            $ref: "#/components/schemas/History"
+        hasNext:
+          type: boolean
