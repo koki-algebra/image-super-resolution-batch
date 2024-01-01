@@ -1,2 +1,2 @@
-def hello():
-    return "Hello from isr!"
+def main():
+    print("Hello, World!")

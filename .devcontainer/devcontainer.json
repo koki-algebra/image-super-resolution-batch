@@ -4,6 +4,13 @@
 		"dockerfile": "Dockerfile",
 		"context": ".."
 	},
+	"mounts": [
+		{
+			"source": "${localEnv:HOME}/.config/git",
+			"target": "/home/vscode/.config/git",
+			"type": "bind"
+		}
+	],
 	"features": {
 		"ghcr.io/devcontainers/features/go:1": {
 			"version": "1.21.5"
