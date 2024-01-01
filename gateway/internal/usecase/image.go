@@ -39,8 +39,8 @@ func (img *imageImpl) Publish(ctx context.Context, r io.Reader, extension string
 		IsrJobID: jobID,
 		IsrJob: entity.IsrJob{
 			IsrJobID:                jobID,
-			UploadImageKey:          fmt.Sprintf("%s/%s%s", img.cfg.UploadImagePrefix, jobID, extension),
-			SuperResolutionImageKey: fmt.Sprintf("%s/%s%s", img.cfg.SuperResolutionImagePrefix, jobID, extension),
+			UploadImageKey:          fmt.Sprintf("%s/%s%s", img.cfg.StorageUploadImagePrefix, jobID, extension),
+			SuperResolutionImageKey: fmt.Sprintf("%s/%s%s", img.cfg.StorageSuperResolutionImagePrefix, jobID, extension),
 		},
 	}
 
@@ -53,7 +53,7 @@ func (img *imageImpl) Publish(ctx context.Context, r io.Reader, extension string
 	}
 
 	// Upload the uploaded image to object storage
-	if err := img.storage.PutObject(ctx, img.cfg.Bucket, imageKey, r); err != nil {
+	if err := img.storage.PutObject(ctx, img.cfg.StorageBucket, imageKey, r); err != nil {
 		return nil, err
 	}
 

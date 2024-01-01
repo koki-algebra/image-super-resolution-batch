@@ -12,9 +12,9 @@ import (
 func InitAWSConfig(ctx context.Context, cfg *config.Config) (aws.Config, error) {
 	// AWS config
 	resolver := aws.EndpointResolverWithOptionsFunc(func(service, region string, options ...interface{}) (aws.Endpoint, error) {
-		if service == s3.ServiceID && len(cfg.S3Endpoint) > 0 {
+		if service == s3.ServiceID && len(cfg.StorageEndpoint) > 0 {
 			return aws.Endpoint{
-				URL:               cfg.S3Endpoint,
+				URL:               cfg.StorageEndpoint,
 				HostnameImmutable: true,
 			}, nil
 		}
