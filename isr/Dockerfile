@@ -11,4 +11,4 @@ COPY . .
 
 RUN rm -rf .venv && rye sync --no-dev
 
-CMD [ "rye", "run", "python", "src/main.py" ]
+CMD [ "rye", "run", "main" ]
