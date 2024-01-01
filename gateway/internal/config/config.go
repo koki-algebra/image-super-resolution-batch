@@ -12,10 +12,10 @@ type Config struct {
 	// Server
 	ServerPort int `env:"SERVER_PORT" envDefault:"80"`
 	// Object storage
-	S3Endpoint                 string `env:"S3_ENDPOINT"`
-	Bucket                     string `env:"BUCKET" envDefault:"image-super-resolution-batch"`
-	UploadImagePrefix          string `env:"UPLOAD_IMAGE_PREFIX" envDefault:"upload_images"`
-	SuperResolutionImagePrefix string `env:"SUPER_RESOLUTION_IMAGE_PREFIX" envDefault:"super_resolution_images"`
+	StorageEndpoint                   string `env:"STORAGE_ENDPOINT"`
+	StorageBucket                     string `env:"STORAGE_BUCKET" envDefault:"image-super-resolution-batch"`
+	StorageUploadImagePrefix          string `env:"STORAGE_UPLOAD_IMAGE_PREFIX" envDefault:"upload_images"`
+	StorageSuperResolutionImagePrefix string `env:"STORAGE_SUPER_RESOLUTION_IMAGE_PREFIX" envDefault:"super_resolution_images"`
 	// Message queue
 	MQHost      string `env:"MQ_HOST" envDefault:"mq"`
 	MQPort      int    `env:"MQ_PORT" envDefault:"5672"`
