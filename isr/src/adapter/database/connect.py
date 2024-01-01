@@ -1,9 +1,9 @@
 import sqlalchemy
 
-from isr.env import EnvironmentVariables
+import config
 
 
-def open(env_vars: EnvironmentVariables) -> sqlalchemy.Engine:
+def open(env_vars: config.EnvironmentVariables) -> sqlalchemy.Engine:
     url = "{}://{}:{}@{}:{}/{}".format(
         "postgresql",
         env_vars.db_user,

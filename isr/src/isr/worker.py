@@ -1,7 +1,7 @@
 import logging
 
-from isr.env import EnvironmentVariables
-from isr.database import open
+import config
+from adapter import database
 
 
 class Worker:
@@ -9,5 +9,5 @@ class Worker:
         logger = logging.getLogger()
         logger.info("ISR Worker started...")
 
-        env_vars = EnvironmentVariables()
-        engine = open(env_vars)
+        env_vars = config.EnvironmentVariables()
+        engine = database.open(env_vars)
