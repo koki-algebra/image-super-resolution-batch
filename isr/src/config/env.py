@@ -84,3 +84,6 @@ class EnvironmentVariables:
     @property
     def storage_super_resolution_image_prefix(self):
         return self._storage_super_resolution_image_prefix
+
+
+env_vars = EnvironmentVariables()

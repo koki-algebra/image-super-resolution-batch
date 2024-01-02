@@ -25,7 +25,8 @@
 				"python.defaultInterpreterPath": "isr/.venv/bin/python"
 			},
 			"extensions": [
-				"ms-python.python"
+				"ms-python.python",
+				"adpyke.vscode-sql-formatter"
 			]
 		}
 	},
