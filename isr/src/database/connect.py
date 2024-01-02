@@ -1,9 +1,9 @@
 import sqlalchemy
 
-import config
+from config import env_vars, EnvironmentVariables
 
 
-def open(env_vars: config.EnvironmentVariables) -> sqlalchemy.Engine:
+def open_database(env_vars: EnvironmentVariables) -> sqlalchemy.Engine:
     url = "{}://{}:{}@{}:{}/{}".format(
         "postgresql",
         env_vars.db_user,
@@ -19,7 +19,10 @@ def open(env_vars: config.EnvironmentVariables) -> sqlalchemy.Engine:
         max_overflow=10,
         pool_timeout=30,
         pool_recycle=3600,
-        echo=True,
+        echo=False,
     )
 
     return engine
+
+
+engine = open_database(env_vars)

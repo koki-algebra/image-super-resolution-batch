@@ -1,1 +1,1 @@
-from .env import *
+from .env import EnvironmentVariables, env_vars
