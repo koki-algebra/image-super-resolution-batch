@@ -1,7 +1,7 @@
 import logging
 
 import config
-from adapter import database
+import database
 
 
 class Worker:
