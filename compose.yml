@@ -35,6 +35,13 @@ services:
       - AWS_REGION=us-east-1
       - AWS_ACCESS_KEY_ID=admin
       - AWS_SECRET_ACCESS_KEY=password
+    depends_on:
+      db:
+        condition: service_healthy
+      storage:
+        condition: service_healthy
+      mq:
+        condition: service_healthy
 
   # Database
   db:

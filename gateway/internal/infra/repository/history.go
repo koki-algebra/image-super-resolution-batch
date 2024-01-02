@@ -33,7 +33,7 @@ func (h *historyImpl) Create(ctx context.Context, history *entity.History) error
 
 	if _, err := tx.NewInsert().
 		Model(history).
-		ExcludeColumn("history_id", "timestamp", "isr_job").
+		ExcludeColumn("history_id", "timestamp").
 		Returning("history_id, timestamp").
 		Exec(ctx); err != nil {
 		return err
