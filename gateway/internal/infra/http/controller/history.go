@@ -14,9 +14,20 @@ import (
 func (ctrl *controllerImpl) ListHistories(w http.ResponseWriter, r *http.Request, params oapi.ListHistoriesParams) {
 	ctx := r.Context()
 
+	var (
+		limit  = 50
+		offset = 0
+	)
+	if params.Limit != nil && *params.Limit > 0 && *params.Limit < limit {
+		limit = *params.Limit
+	}
+	if params.Offset != nil && *params.Offset > 0 {
+		offset = *params.Offset
+	}
+
 	p := repository.HistoryListParams{
-		Limit:  params.Limit,
-		Offset: params.Offset,
+		Limit:  limit + 1,
+		Offset: offset,
 	}
 
 	histories, err := ctrl.history.List(ctx, p)
@@ -27,7 +38,7 @@ func (ctrl *controllerImpl) ListHistories(w http.ResponseWriter, r *http.Request
 	}
 
 	render.Status(r, http.StatusOK)
-	render.JSON(w, r, convertHistories(histories, params.Limit))
+	render.JSON(w, r, convertHistories(histories, limit))
 }
 
 func convertHistory(history *entity.History) *oapi.History {
@@ -47,14 +58,15 @@ func convertHistory(history *entity.History) *oapi.History {
 	}
 }
 
-func convertHistories(histories []*entity.History, limit *int) *oapi.ListHistoriesResponse {
+func convertHistories(histories []*entity.History, limit int) *oapi.ListHistoriesResponse {
 	if histories == nil {
 		return nil
 	}
 
 	hasNext := false
-	if limit != nil && len(histories) > *limit {
+	if len(histories) > limit {
 		hasNext = true
+		histories = histories[:len(histories)-1]
 	}
 
 	resHistories := []oapi.History{}
