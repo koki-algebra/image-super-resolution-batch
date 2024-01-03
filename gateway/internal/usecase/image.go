@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"path/filepath"
 
 	"github.com/google/uuid"
 	"github.com/koki-algebra/image-super-resolution-batch/gateway/internal/config"
@@ -14,6 +15,7 @@ import (
 
 type Image interface {
 	Publish(ctx context.Context, r io.Reader, extension string) (*entity.History, error)
+	Download(ctx context.Context, jobID uuid.UUID) (r io.ReadCloser, ext string, err error)
 }
 
 func NewImage(cfg *config.Config, publisher service.Publisher, storage service.Storage, repo repository.History) Image {
@@ -63,4 +65,20 @@ func (img *imageImpl) Publish(ctx context.Context, r io.Reader, extension string
 	}
 
 	return &history, nil
+}
+
+func (img *imageImpl) Download(ctx context.Context, jobID uuid.UUID) (io.ReadCloser, string, error) {
+	history, err := img.repo.FindByJobID(ctx, jobID)
+	if err != nil {
+		return nil, "", err
+	}
+
+	body, err := img.storage.GetObject(ctx, img.cfg.StorageBucket, history.IsrJob.SuperResolutionImageKey)
+	if err != nil {
+		return nil, "", err
+	}
+
+	ext := filepath.Ext(history.IsrJob.SuperResolutionImageKey)
+
+	return body, ext, nil
 }
