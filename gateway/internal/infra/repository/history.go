@@ -50,16 +50,12 @@ func (h *historyImpl) List(ctx context.Context, params repository.HistoryListPar
 	}
 	defer tx.Rollback()
 
-	var (
-		limit  = 50
-		offset = 0
-	)
-
-	if params.Limit != nil && *params.Limit < limit {
-		limit = *params.Limit
+	var limit, offset int
+	if params.Limit > 0 {
+		limit = params.Limit
 	}
-	if params.Offset != nil && *params.Offset > offset {
-		offset = *params.Offset
+	if params.Offset > 0 {
+		offset = params.Offset
 	}
 
 	var histories []*entity.History

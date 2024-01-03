@@ -14,6 +14,6 @@ type History interface {
 }
 
 type HistoryListParams struct {
-	Limit  *int
-	Offset *int
+	Limit  int
+	Offset int
 }
