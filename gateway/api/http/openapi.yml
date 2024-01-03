@@ -111,6 +111,11 @@ paths:
           description: Offset when retrieving
           schema:
             type: integer
+        - name: latest
+          in: query
+          description: Get only latest histories
+          schema:
+            type: boolean
       responses:
         200:
           description: OK response

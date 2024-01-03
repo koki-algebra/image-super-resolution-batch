@@ -9,11 +9,16 @@ import (
 	"github.com/koki-algebra/image-super-resolution-batch/gateway/internal/repository"
 	"github.com/uptrace/bun"
 	"github.com/uptrace/bun/dialect/pgdialect"
+	"github.com/uptrace/bun/extra/bundebug"
 )
 
 func NewHistory(sqlDB *sql.DB) repository.History {
+	db := bun.NewDB(sqlDB, pgdialect.New(), bun.WithDiscardUnknownColumns())
+	db.AddQueryHook(bundebug.NewQueryHook(
+		bundebug.WithVerbose(true),
+	))
 	return &historyImpl{
-		db: bun.NewDB(sqlDB, pgdialect.New(), bun.WithDiscardUnknownColumns()),
+		db: db,
 	}
 }
 
@@ -59,13 +64,33 @@ func (h *historyImpl) List(ctx context.Context, params repository.HistoryListPar
 	}
 
 	var histories []*entity.History
-	if err := tx.NewSelect().
-		Model(&histories).
-		Relation("IsrJob").
-		Limit(limit).
-		Offset(offset).
-		Scan(ctx); err != nil {
-		return nil, err
+	if params.Latest {
+		latests := tx.NewSelect().
+			Column("isr_job_id").
+			ColumnExpr("MAX(timestamp) AS max_timestamp").
+			Table("histories").
+			Group("isr_job_id")
+
+		if err := tx.NewSelect().
+			With("latests", latests).
+			Model(&histories).
+			Column("h.*").
+			ModelTableExpr("histories AS h").
+			Join("INNER JOIN latests AS lt").
+			JoinOn("h.isr_job_id = lt.isr_job_id AND h.timestamp = lt.max_timestamp").
+			Limit(limit).
+			Offset(offset).
+			Scan(ctx); err != nil {
+			return nil, err
+		}
+	} else {
+		if err := tx.NewSelect().
+			Model(&histories).
+			Limit(limit).
+			Offset(offset).
+			Scan(ctx); err != nil {
+			return nil, err
+		}
 	}
 
 	return histories, tx.Commit()

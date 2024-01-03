@@ -17,6 +17,7 @@ func (ctrl *controllerImpl) ListHistories(w http.ResponseWriter, r *http.Request
 	var (
 		limit  = 50
 		offset = 0
+		latest bool
 	)
 	if params.Limit != nil && *params.Limit > 0 && *params.Limit < limit {
 		limit = *params.Limit
@@ -24,10 +25,14 @@ func (ctrl *controllerImpl) ListHistories(w http.ResponseWriter, r *http.Request
 	if params.Offset != nil && *params.Offset > 0 {
 		offset = *params.Offset
 	}
+	if params.Latest != nil {
+		latest = *params.Latest
+	}
 
 	p := repository.HistoryListParams{
 		Limit:  limit + 1,
 		Offset: offset,
+		Latest: latest,
 	}
 
 	histories, err := ctrl.history.List(ctx, p)
@@ -48,7 +53,7 @@ func convertHistory(history *entity.History) *oapi.History {
 
 	status := history.Status.String()
 	timestamp := history.Timestamp.String()
-	jobID := uuid.MustParse(history.IsrJob.IsrJobID)
+	jobID := uuid.MustParse(history.IsrJobID)
 
 	return &oapi.History{
 		HistoryID: &history.HistoryID,
