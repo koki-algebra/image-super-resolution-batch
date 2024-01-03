@@ -10,7 +10,8 @@ type Config struct {
 	DBUser     string `env:"DB_USER" envDefault:"postgres"`
 	DBPassword string `env:"DB_PASSWORD" envDefault:"password"`
 	// Server
-	ServerPort int `env:"SERVER_PORT" envDefault:"80"`
+	ServerPort         int    `env:"SERVER_PORT" envDefault:"80"`
+	ServerAllowOrigins string `env:"SERVER_ALLOW_ORIGINS" envDefault:"http://localhost:8000"`
 	// Object storage
 	StorageEndpoint                   string `env:"STORAGE_ENDPOINT"`
 	StorageBucket                     string `env:"STORAGE_BUCKET" envDefault:"image-super-resolution-batch"`
