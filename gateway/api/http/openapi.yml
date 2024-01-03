@@ -65,6 +65,33 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Message"
+  /images/{jobID}:
+    get:
+      description: >
+        Download an super resolution image
+      operationId: downloadImage
+      parameters:
+        - name: jobID
+          in: path
+          required: true
+          description: ID of the job to download
+          schema:
+            type: string
+            example: e170b150-135f-4e50-96c8-2113dcfe4b3d
+            format: uuid
+      tags:
+        - images
+      responses:
+        200:
+          description: OK response
+          content:
+            image/*: {}
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
 
   /histories:
     get:
