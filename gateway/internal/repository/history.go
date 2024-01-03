@@ -16,4 +16,5 @@ type History interface {
 type HistoryListParams struct {
 	Limit  int
 	Offset int
+	Latest bool
 }

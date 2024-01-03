@@ -14,6 +14,7 @@ require (
 	github.com/oapi-codegen/runtime v1.1.0
 	github.com/rabbitmq/amqp091-go v1.9.0
 	github.com/sourcegraph/conc v0.3.0
+	github.com/uptrace/bun/extra/bundebug v1.1.16
 )
 
 require (
@@ -34,6 +35,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.21.5 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sts v1.26.6 // indirect
 	github.com/aws/smithy-go v1.19.0 // indirect
+	github.com/fatih/color v1.15.0 // indirect
 	github.com/go-openapi/jsonpointer v0.19.6 // indirect
 	github.com/go-openapi/swag v0.22.4 // indirect
 	github.com/invopop/yaml v0.2.0 // indirect

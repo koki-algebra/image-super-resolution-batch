@@ -45,6 +45,9 @@ type ListHistoriesParams struct {
 
 	// Offset Offset when retrieving
 	Offset *int `form:"offset,omitempty" json:"offset,omitempty"`
+
+	// Latest Get only latest histories
+	Latest *bool `form:"latest,omitempty" json:"latest,omitempty"`
 }
 
 // UploadImageMultipartBody defines parameters for UploadImage.
@@ -141,6 +144,14 @@ func (siw *ServerInterfaceWrapper) ListHistories(w http.ResponseWriter, r *http.
 	err = runtime.BindQueryParameter("form", true, false, "offset", r.URL.Query(), &params.Offset)
 	if err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "offset", Err: err})
+		return
+	}
+
+	// ------------- Optional query parameter "latest" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "latest", r.URL.Query(), &params.Latest)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "latest", Err: err})
 		return
 	}
 
@@ -328,21 +339,21 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"H4sIAAAAAAAC/9RWUZPbNBD+K5qFJ0hiO+m1qd+gN0NDKccU+gT3INvrWIctqdL67jKZ/HdmZTu55Ewm",
-	"DPBwT1G02m9Xu5+/1RZy01ijUZOHdAs+r7CRYfleeTJuw0vrjEVHCoOh6gyra/6Dj7KxNUKaTIA2FiEF",
-	"pQnX6GA3AeXdjyY7OQmYvImz5CqeJourcvoKr+Lp29f5cjpPkkWRl/gqWxQwgdK4RhKk0LaK//fwnpzS",
-	"a0b3JKn1x9gWdcHmkeOkGvQkG3vsMY/ni2kyny4SkbxJF8t0/nq2iN8mS/FtHMex+Pzbu+dou/2Oye4w",
-	"J8b/SXnqiqbQf0JvjfY4Uj7pf8ZH4mUPkRlTo9SMUQ3+bFaETVh87bCEFL6KDs2K+k5FQ5sOGUnn5GY8",
-	"xY/ovVyPJNUcDIfKtBofLeaEhUDnjLukDLyldGkYqUCfO2VJGQ0prBq5RvFra9FNP6E3dcsG8d0vK8ZV",
-	"FEKePXSPzndYySyexXwhY1FLqyCFxSyZxTABK6kKV4oqlDVVvFwjPc/nfTCLvML8zz80BCwn2bgq9uZ3",
-	"bIUJuL6dAXkex/yTG02oA7K0tlZ5cI7uPMMPn9KFpb75cGlxjy9x80EMqUEwlrKt6R9ld45cA19GIj8j",
-	"R8hXrj2kv0Nf+lvei444PdqKH5DE/tRIL46+rNBjJxskdBzsFOyjfFRN2wjdNhk6QUY4JKfwHoUkYXSO",
-	"wBSFFL606DYwAS0brnKtGkUweVKaU0HbTU6D3ZSlRxIPFeohTKc+YwFMOHw+wu2/5Nq5bo4L1Ati1Z4C",
-	"HbEUi4WPWlsbWYQPzfgRdn0OdiG1CA5C6kLUstV5JaTIJOUVk0Tp3KH0KKhCvn0vPSNs7PCCUgVl+NKi",
-	"p+9NsTkpUNPWpKx0FPEkmxaS5DldKFUdRGE/9jKlZaDPBbqw+x9ps58wL4YoHTGOWbK944fI7m816No8",
-	"6IEnnufPExJ0xBmhwuA0kOGsMK2uhSkDve5MxpQreu9BLnh0HdQi5NsTTDksICXX4lPx+K9fVBeITyhE",
-	"9A2k2xdIBn4yorsfutO6GlKoiGwaRbXJZV0ZT+kyXsbApegBtkND+qHGQ6Df6aGf7Bwkane7+ysAAP//",
-	"r1hRK10LAAA=",
+	"H4sIAAAAAAAC/9RWTY/bNhD9K8S0p9a2JDubOLq1WaBx03SLtDm1e6CkkcWtRDLkaGPD8H8vhpb8tYrh",
+	"oO1hT6Y55Jvhm6dHbiA3jTUaNXlIN+DzChsZhm+VJ+PWPLTOWHSkMASqXWBxy39wJRtbI6TJCGhtEVJQ",
+	"mnCJDrYjUN79bLKzlYDJqzhLbuJxMrspxy/wJh6/fpnPx9MkmRV5iS+yWQEjKI1rJEEKbav4fwfvySm9",
+	"ZHRPklp/im1RFxweWE6qQU+ysac7pvF0Nk6m41kiklfpbJ5OX05m8etkLr6P4zgWH/948xRtu58x2QPm",
+	"xPi/KE870hT6D+it0R4H6JP+V1wRDzuIzJgapWaMqt/PYUXYhMG3DktI4Zvo0Kyo61TUt+lQkXROrodL",
+	"fI/ey+VAUc0hcGCm1biymBMWAp0z7hoaeErp0jBSgT53ypIyGlJYNHKJ4vfWoht/QG/qlgPih98WjKso",
+	"pLy46BGd32Elk3gS84GMRS2tghRmk2QSwwispCocKapQ1lTxcIn0tJ63ISzyCvO//9IQsJzk4KLYh99w",
+	"FEbgunYG5Gkc809uNKEOyNLaWuVhc/TgGb7/lK6k+u7dteSeHuLunehLgxAsZVvTV1V3SVy9XgYyPxFH",
+	"qFcuPaR/Qkf9Pc9FJ5oebMVPSGK/aqAXJ19W6LGTDRI6TnYO9l6uVNM2QrdNhk6QEQ7JKXxEIUkYnSOw",
+	"RCGFTy26NYxAy4ZZrlWjCEZH1Jwb2nZ0nuyuLD2S+Fyh7tPs3GcogQmLvzIDc2N0vRa1JPRHPH3pFGHZ",
+	"UJK9zWzv/6WgL0lm2AWfkXT3/O7Uq9iRfNTa2sgifM3GD0j4Y4gLqUXYIKQuRC1bnVdCikxSXrESlc4d",
+	"So+CKuTTd/42IPkdXrDDYD+fWvT0oynWZwQ1bU3KSkcRX5fjQpK8ZD6lqoPz7O/WTGkZ5HOF+Wz/R9ns",
+	"r7FnI5SdME5Vsnng1872i0Z3az7rXieeL7kjEeyEMyCFflMvhovut7gVpgzyejAZS67odvd2wffjwS1C",
+	"vZ3AlMMCUnItHpvHf/1su8J8AhHRd5BunqEY+F2K7rHvTutqSKEismkU1SaXdWU8pfN4HgNT0QFs+oZ0",
+	"NyffA91MB300c7Co7f32nwAAAP//YPMXbsILAAA=",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file
