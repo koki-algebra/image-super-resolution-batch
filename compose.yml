@@ -60,7 +60,7 @@ services:
       timeout: 5s
       retries: 3
     volumes:
-      - ./database/init:/docker-entrypoint-initdb.d
+      - ./docker/sql:/docker-entrypoint-initdb.d
 
   # Object Storage
   storage:
